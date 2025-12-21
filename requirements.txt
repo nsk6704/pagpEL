@@ -1,0 +1,12 @@
+numpy
+pandas
+torch
+scikit-learn
+matplotlib
+tqdm
+fastapi
+uvicorn
+requests
+pydantic
+python-multipart
+sse-starlette
