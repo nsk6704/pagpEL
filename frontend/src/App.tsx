@@ -40,7 +40,10 @@ interface Results {
   }
 }
 
-const API_URL = 'http://localhost:8000'
+const API_URL = 'https://74aee8e58901.ngrok-free.app/'.replace(/\/+$/, '')
+
+// Add Ngrok bypass header for Axios
+axios.defaults.headers.common['ngrok-skip-browser-warning'] = 'true'
 
 // --- Components ---
 
@@ -81,6 +84,7 @@ const StatusBadge = ({ status }: { status: string }) => {
 
 const DataInspector = ({ dataset }: { dataset: string }) => {
   const [data, setData] = useState<{ normal: number[], anomaly: number[] } | null>(null)
+
 
   const fetchData = async () => {
     try {
@@ -267,7 +271,7 @@ function App() {
               </div>
               <p className="text-zinc-400 max-w-2xl text-lg">
                 Research-grade parallel ensemble learning for time-series analysis.
-                Supports <span className="text-zinc-200 font-medium">LSTM, GRU, CNN, Transformer</span> architectures.
+                Supports <span className="text-zinc-200 font-medium">LSTM, CNN, Transformer</span> architectures.
               </p>
             </div>
           </BentoBox>
@@ -280,6 +284,16 @@ function App() {
             <div className="text-sm font-medium text-zinc-300">
               {backendUp ? "System Online" : "Backend Offline"}
             </div>
+            {!backendUp && API_URL.includes('ngrok') && (
+              <a
+                href={API_URL}
+                target="_blank"
+                rel="noreferrer"
+                className="text-[10px] text-blue-400 hover:underline mt-1 block"
+              >
+                Click to bypass Ngrok warning
+              </a>
+            )}
             <div className="text-xs text-zinc-500 mt-1 font-mono">{API_URL}</div>
           </BentoBox>
         </div>
