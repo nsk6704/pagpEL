@@ -11,7 +11,7 @@ def main():
     parser.add_argument('--batch_size', type=int, default=32, help='Batch size')
     parser.add_argument('--seq_len', type=int, default=64, help='Sequence length')
     parser.add_argument('--n_features', type=int, default=1, help='Number of features')
-    parser.add_argument('--n_models', type=int, default=4, help='Number of models to train in parallel')
+    parser.add_argument('--n_models', type=int, default=5, help='Number of models to train in parallel')
     parser.add_argument('--device', type=str, default='cpu', help='Device (cpu or cuda)')
     
     args = parser.parse_args()
@@ -24,8 +24,8 @@ def main():
     print(f"Configuration: {args}")
     
     # 1. Define Model Configurations
-    # We will mix different architectures
-    model_types = ['lstm', 'cnn', 'dense']
+    # We will mix different architectures - ALL 5 MODELS
+    model_types = ['lstm', 'cnn', 'dense', 'transformer', 'gru']
     configs = []
     
     for i in range(args.n_models):

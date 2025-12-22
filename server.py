@@ -43,7 +43,7 @@ class TrainConfig(BaseModel):
     epochs: int = 5
     batch_size: int = 32
     seq_len: int = 64
-    n_models: int = 4
+    n_models: int = 5
     device: str = "cpu" # cpu or cuda
 
 class WorkerStatus(BaseModel):

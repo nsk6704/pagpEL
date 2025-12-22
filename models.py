@@ -200,7 +200,7 @@ if __name__ == "__main__":
     print("Testing Models...")
     x = torch.randn(32, 64, 1) # [Batch, Seq, Feat]
     
-    models = ['lstm', 'cnn', 'dense']
+    models = ['lstm', 'cnn', 'dense', 'transformer', 'gru']
     for m_name in models:
         model = get_model(m_name, 64, 1)
         out = model(x)

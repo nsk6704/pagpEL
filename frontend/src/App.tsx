@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
-import { Activity, Play, Cpu, Database, Zap, Clock, Terminal, BarChart3, Layers } from 'lucide-react'
+import { Activity, Play, Cpu, Database, Zap, Clock, Terminal, BarChart3, Layers, Brain, Grid, Box, Sparkles, RefreshCw } from 'lucide-react'
 import { cn } from './lib/utils'
 
 // --- Types ---
@@ -40,10 +40,44 @@ interface Results {
   }
 }
 
-const API_URL = 'https://74aee8e58901.ngrok-free.app/'.replace(/\/+$/, '')
+const API_URL = 'http://localhost:8000'
 
 // Add Ngrok bypass header for Axios
 axios.defaults.headers.common['ngrok-skip-browser-warning'] = 'true'
+
+// --- Model Config ---
+const MODEL_INFO: Record<string, { icon: any; color: string; bgColor: string; description: string }> = {
+  lstm: {
+    icon: Brain,
+    color: 'text-purple-400',
+    bgColor: 'bg-purple-500/10 border-purple-500/20',
+    description: 'Long Short-Term Memory'
+  },
+  cnn: {
+    icon: Grid,
+    color: 'text-blue-400',
+    bgColor: 'bg-blue-500/10 border-blue-500/20',
+    description: 'Convolutional Neural Network'
+  },
+  dense: {
+    icon: Box,
+    color: 'text-emerald-400',
+    bgColor: 'bg-emerald-500/10 border-emerald-500/20',
+    description: 'Fully Connected Network'
+  },
+  transformer: {
+    icon: Sparkles,
+    color: 'text-amber-400',
+    bgColor: 'bg-amber-500/10 border-amber-500/20',
+    description: 'Self-Attention Architecture'
+  },
+  gru: {
+    icon: RefreshCw,
+    color: 'text-rose-400',
+    bgColor: 'bg-rose-500/10 border-rose-500/20',
+    description: 'Gated Recurrent Unit'
+  }
+}
 
 // --- Components ---
 
@@ -69,22 +103,35 @@ const MetricCard = ({ label, value, colorClass }: { label: string, value: string
 const StatusBadge = ({ status }: { status: string }) => {
   const isSuccess = status === 'success'
   const isError = status === 'error' || status === 'failed'
+  const isTraining = status === 'training'
 
   return (
     <span className={cn(
       "px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wide border",
       isSuccess ? "bg-emerald-950/30 text-emerald-400 border-emerald-900/50" :
         isError ? "bg-rose-950/30 text-rose-400 border-rose-900/50" :
-          "bg-zinc-800 text-zinc-400 border-zinc-700"
+          isTraining ? "bg-amber-950/30 text-amber-400 border-amber-900/50 animate-pulse" :
+            "bg-zinc-800 text-zinc-400 border-zinc-700"
     )}>
       {status}
     </span>
   )
 }
 
+const ModelBadge = ({ model }: { model: string }) => {
+  const info = MODEL_INFO[model.toLowerCase()] || MODEL_INFO.dense
+  const Icon = info.icon
+
+  return (
+    <div className={cn("flex items-center gap-2 px-2 py-1 rounded-lg border", info.bgColor)}>
+      <Icon size={12} className={info.color} />
+      <span className={cn("text-xs font-medium uppercase", info.color)}>{model}</span>
+    </div>
+  )
+}
+
 const DataInspector = ({ dataset }: { dataset: string }) => {
   const [data, setData] = useState<{ normal: number[], anomaly: number[] } | null>(null)
-
 
   const fetchData = async () => {
     try {
@@ -154,6 +201,33 @@ const DataInspector = ({ dataset }: { dataset: string }) => {
   )
 }
 
+// --- Model Overview Component ---
+const ModelOverview = () => {
+  const models = ['lstm', 'cnn', 'dense', 'transformer', 'gru']
+
+  return (
+    <div className="grid grid-cols-5 gap-3">
+      {models.map((model) => {
+        const info = MODEL_INFO[model]
+        const Icon = info.icon
+        return (
+          <div
+            key={model}
+            className={cn(
+              "flex flex-col items-center justify-center p-4 rounded-xl border transition-all hover:scale-105",
+              info.bgColor
+            )}
+          >
+            <Icon size={24} className={info.color} />
+            <span className={cn("text-sm font-bold uppercase mt-2", info.color)}>{model}</span>
+            <span className="text-[9px] text-zinc-500 text-center mt-1">{info.description}</span>
+          </div>
+        )
+      })}
+    </div>
+  )
+}
+
 // --- Main App ---
 
 function App() {
@@ -162,7 +236,7 @@ function App() {
     epochs: 10,
     batch_size: 32,
     seq_len: 64,
-    n_models: 4,
+    n_models: 5,  // Default to 5 models
     device: 'cpu'
   })
 
@@ -271,7 +345,7 @@ function App() {
               </div>
               <p className="text-zinc-400 max-w-2xl text-lg">
                 Research-grade parallel ensemble learning for time-series analysis.
-                Supports <span className="text-zinc-200 font-medium">LSTM, CNN, Transformer</span> architectures.
+                Supports <span className="text-purple-400 font-medium">LSTM</span>, <span className="text-blue-400 font-medium">CNN</span>, <span className="text-emerald-400 font-medium">Dense</span>, <span className="text-amber-400 font-medium">Transformer</span>, <span className="text-rose-400 font-medium">GRU</span> architectures.
               </p>
             </div>
           </BentoBox>
@@ -297,6 +371,11 @@ function App() {
             <div className="text-xs text-zinc-500 mt-1 font-mono">{API_URL}</div>
           </BentoBox>
         </div>
+
+        {/* --- Model Architectures Overview --- */}
+        <BentoBox title="Ensemble Architectures" icon={Layers}>
+          <ModelOverview />
+        </BentoBox>
 
         {/* --- Main Content Grid --- */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
@@ -341,6 +420,20 @@ function App() {
                     disabled={status.active}
                   />
                 </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-xs text-zinc-500 font-medium ml-1">Number of Models</label>
+                <input
+                  type="number"
+                  min={1}
+                  max={10}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none transition-all hover:border-zinc-700"
+                  value={config.n_models}
+                  onChange={(e) => setConfig({ ...config, n_models: parseInt(e.target.value) })}
+                  disabled={status.active}
+                />
+                <p className="text-[10px] text-zinc-600 ml-1">Models cycle through: LSTM → CNN → Dense → Transformer → GRU</p>
               </div>
 
               <div className="space-y-1.5">
@@ -482,12 +575,12 @@ function App() {
           </div>
         </div>
 
-        {/* --- Data Inspector --- */}
+        {/* --- Data Inspector ---
         <div className="grid grid-cols-1">
           <BentoBox title="Data Inspector" icon={Database} className="min-h-[300px]">
             <DataInspector dataset={config.dataset} />
           </BentoBox>
-        </div>
+        </div> */}
 
         {/* --- Bottom Grid --- */}
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
@@ -509,7 +602,9 @@ function App() {
                     status.workers.map((w) => (
                       <tr key={w.rank} className="group hover:bg-zinc-800/30 transition-colors">
                         <td className="px-4 py-3 font-mono text-xs text-zinc-500">#{w.rank}</td>
-                        <td className="px-4 py-3 font-medium text-zinc-200">{w.model}</td>
+                        <td className="px-4 py-3">
+                          <ModelBadge model={w.model} />
+                        </td>
                         <td className="px-4 py-3">
                           <StatusBadge status={w.status} />
                         </td>
