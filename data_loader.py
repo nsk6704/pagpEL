@@ -133,9 +133,9 @@ class NYCTaxiDataset(Dataset):
     def __getitem__(self, idx):
         return torch.from_numpy(self.data[idx]), torch.tensor(self.labels[idx])
 
-def get_dataloaders(dataset_name='synthetic', batch_size=32, seq_len=64, n_train=1000, n_test=200):
+def get_dataloaders(dataset_name='synthetic', batch_size=32, seq_len=64, n_train=1000, n_test=200, num_workers=0, pin_memory=False):
     """
-    Returns train and test dataloaders.
+    Returns train and test dataloaders with parallel loading support.
     """
     if dataset_name == 'nyc_taxi':
         train_dataset = NYCTaxiDataset(seq_len=seq_len, mode='train')
@@ -144,8 +144,20 @@ def get_dataloaders(dataset_name='synthetic', batch_size=32, seq_len=64, n_train
         train_dataset = TimeSeriesDataset(n_samples=n_train, seq_len=seq_len, mode='train')
         test_dataset = TimeSeriesDataset(n_samples=n_test, seq_len=seq_len, mode='test', anomaly_ratio=0.2)
     
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=0)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=0)
+    train_loader = DataLoader(
+        train_dataset, 
+        batch_size=batch_size, 
+        shuffle=True, 
+        num_workers=num_workers,
+        pin_memory=pin_memory
+    )
+    test_loader = DataLoader(
+        test_dataset, 
+        batch_size=batch_size, 
+        shuffle=False, 
+        num_workers=num_workers,
+        pin_memory=pin_memory
+    )
     
     return train_loader, test_loader
 

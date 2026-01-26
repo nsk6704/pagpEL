@@ -1,5 +1,6 @@
 import torch
 import torch.multiprocessing as mp
+import numpy as np
 import time
 from data_loader import get_dataloaders
 from models import get_model
@@ -15,17 +16,31 @@ def train_worker(rank, config, return_dict, status_queue):
     seq_len = config['seq_len']
     n_features = config['n_features']
     device = config['device']
+    use_amp = config.get('use_amp', False)
+    num_workers = config.get('num_workers', 0)
+    pin_memory = config.get('pin_memory', False)
+    
+    # Resolve DML device if needed
+    if device == 'dml':
+        import torch_directml
+        device = torch_directml.device()
     
     # Signal start
     status_queue.put({
         'rank': rank,
         'model': model_name,
         'status': 'training',
-        'duration': 0.0
+        'duration': 0.0,
+        'device': device
     })
     
-    # Each worker gets its own dataloaders (to avoid pickling issues with some datasets)
-    train_loader, val_loader = get_dataloaders(batch_size=batch_size, seq_len=seq_len)
+    # Each worker gets its own dataloaders
+    train_loader, val_loader = get_dataloaders(
+        batch_size=batch_size, 
+        seq_len=seq_len,
+        num_workers=num_workers,
+        pin_memory=pin_memory
+    )
     
     # Initialize model
     model = get_model(model_name, seq_len, n_features)
@@ -39,7 +54,8 @@ def train_worker(rank, config, return_dict, status_queue):
             val_loader, 
             epochs=epochs, 
             device=device, 
-            model_name=f"Worker-{rank}-{model_name}"
+            model_name=f"W-{rank}-{model_name}",
+            use_amp=use_amp
         )
         end_time = time.time()
         duration = end_time - start_time
@@ -49,12 +65,17 @@ def train_worker(rank, config, return_dict, status_queue):
             'rank': rank,
             'model': model_name,
             'status': 'success',
-            'duration': duration
+            'duration': duration,
+            'throughput': float(np.mean(history['throughput'])) if history.get('throughput') else 0
         })
+        
+        # IMPORTANT: Move state_dict to CPU before returning!
+        # DirectML tokens cannot be serialized across processes easily.
+        cpu_state_dict = {k: v.cpu() for k, v in state_dict.items()}
         
         return_dict[rank] = {
             'status': 'success',
-            'model_state': state_dict,
+            'model_state': cpu_state_dict,
             'history': history,
             'config': config,
             'start_time': start_time,
