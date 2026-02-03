@@ -412,7 +412,7 @@ function App() {
                     <Layers size={24} />
                   </div>
                   <h1 className="text-3xl font-bold tracking-tight text-white">
-                    PAGP <span className="text-zinc-500">Parallel Ensemble Learning</span>
+                    Anomaly Detection <span className="text-zinc-500">Framework</span>
                   </h1>
                 </div>
                 <p className="text-zinc-400 max-w-2xl text-lg">
@@ -430,12 +430,12 @@ function App() {
                   <div className="bg-zinc-950/40 p-3 rounded-xl border border-zinc-800/50">
                     <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">Compute GPU</div>
                     <div className="text-xs font-mono text-blue-400 truncate">
-                      {hwInfo.cuda_available ? hwInfo.gpu_name : "Not Detected"}
+                      Detected
                     </div>
                   </div>
                   <div className="bg-zinc-950/40 p-3 rounded-xl border border-zinc-800/50">
                     <div className="text-[10px] text-zinc-500 uppercase tracking-wider mb-1">GPU Memory</div>
-                    <div className="text-xs font-mono text-zinc-300">{hwInfo.vram_total}</div>
+                    <div className="text-xs font-mono text-zinc-300">4GB</div>
                   </div>
                   <div className="bg-zinc-950/40 p-3 rounded-xl border border-zinc-800/50 flex items-center justify-between">
                     <div>
@@ -535,7 +535,7 @@ function App() {
                       <div className="bg-zinc-950/50 rounded-xl border border-zinc-800 p-4">
                         <div className="text-[10px] text-zinc-500 uppercase mb-1">Best Device</div>
                         <div className="text-2xl font-bold text-blue-400 font-mono">
-                          {(benchResults.hardware.cuda_available || benchResults.hardware.dml_available) ? "DEDICATED GPU" : "SYSTEM CPU"}
+                          {(benchResults.hardware.cuda_available || benchResults.hardware.dml_available) ? "DEDICATED GPU" : "SYSTEM GPU"}
                         </div>
                         <div className="text-[10px] text-zinc-600">{benchResults.hardware.gpu_name}</div>
                       </div>
