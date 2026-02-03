@@ -1,55 +1,55 @@
 {
     "hardware": {
         "cpu": "Unknown CPU",
-        "gpu": "DirectML AMD GPU",
-        "vram": "N/A"
+        "gpu": "DirectML GPU (AMD/Intel/NVIDIA)",
+        "vram": "Shared (DirectML)"
     },
     "benchmarks": [
         {
             "device": "cpu",
             "batch_size": 128,
-            "avg_throughput": 742.7018061640945,
-            "total_time": 13.690717697143555,
+            "avg_throughput": 573.2528142248709,
+            "total_time": 17.711190700531006,
             "max_memory": 0.0,
             "use_amp": false
         },
         {
             "device": "cpu",
             "batch_size": 512,
-            "avg_throughput": 696.9885217760327,
-            "total_time": 14.561489582061768,
+            "avg_throughput": 557.7416484660591,
+            "total_time": 18.230483293533325,
             "max_memory": 0.0,
             "use_amp": false
         },
         {
             "device": "cpu",
             "batch_size": 1024,
-            "avg_throughput": 675.8484644571743,
-            "total_time": 15.050315141677856,
+            "avg_throughput": 502.3648609750902,
+            "total_time": 20.183252334594727,
             "max_memory": 0.0,
             "use_amp": false
         },
         {
             "device": "dml",
             "batch_size": 128,
-            "avg_throughput": 1031.038120288359,
-            "total_time": 9.909340620040894,
+            "avg_throughput": 935.4249882627266,
+            "total_time": 10.951619386672974,
             "max_memory": 0.0,
             "use_amp": false
         },
         {
             "device": "dml",
             "batch_size": 512,
-            "avg_throughput": 1191.3887013657202,
-            "total_time": 8.952056169509888,
+            "avg_throughput": 1116.870237090982,
+            "total_time": 9.17362356185913,
             "max_memory": 0.0,
             "use_amp": false
         },
         {
             "device": "dml",
             "batch_size": 1024,
-            "avg_throughput": 1178.93803590514,
-            "total_time": 9.07108759880066,
+            "avg_throughput": 883.6138607573424,
+            "total_time": 12.552149295806885,
             "max_memory": 0.0,
             "use_amp": false
         }

@@ -10,3 +10,4 @@ requests
 pydantic
 python-multipart
 sse-starlette
+py-cpuinfo

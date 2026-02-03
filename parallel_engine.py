@@ -108,41 +108,52 @@ class ParallelTrainer:
     def run(self, status_callback=None):
         """
         Spawns processes to train models in parallel.
+        Respects max_workers to avoid bombing the system.
         """
-        mp.set_start_method('spawn', force=True)
+        try:
+            mp.set_start_method('spawn', force=True)
+        except RuntimeError:
+            pass # Method already set
+
         manager = mp.Manager()
         return_dict = manager.dict()
         status_queue = manager.Queue()
+        
+        # Determine max workers
+        import os
+        config_limit = self.configs[0].get('max_concurrent_workers') if self.configs else None
+        max_workers = config_limit or max(1, os.cpu_count() - 1) # Leave one core for OS/UI
+        
+        print(f"Starting parallel training with {len(self.configs)} tasks (Max Concurrent: {max_workers})...")
+        
         processes = []
+        task_queue = list(enumerate(self.configs))
+        active_pids = []
         
-        print(f"Starting parallel training with {len(self.configs)} workers...")
-        
-        for rank, config in enumerate(self.configs):
-            p = mp.Process(target=train_worker, args=(rank, config, return_dict, status_queue))
-            p.start()
-            processes.append(p)
+        while task_queue or active_pids:
+            # Spawn new workers if slots available
+            while task_queue and len(active_pids) < max_workers:
+                rank, config = task_queue.pop(0)
+                p = mp.Process(target=train_worker, args=(rank, config, return_dict, status_queue))
+                p.start()
+                active_pids.append(p)
             
-        # Monitor loop
-        active_workers = len(processes)
-        
-        while active_workers > 0:
-            # Check for updates
+            # Check status
             while not status_queue.empty():
                 msg = status_queue.get()
                 if status_callback:
                     status_callback(msg)
-                
-                if msg['status'] in ['success', 'failed']:
-                    active_workers -= 1
             
-            # Check if processes are still alive (safety net)
-            if not any(p.is_alive() for p in processes) and status_queue.empty():
-                break
-                
+            # Clean up finished processes
+            still_active = []
+            for p in active_pids:
+                if p.is_alive():
+                    still_active.append(p)
+                else:
+                    p.join() # Ensure resource release
+            active_pids = still_active
+            
             time.sleep(0.1)
-            
-        for p in processes:
-            p.join()
             
         print("Parallel training complete.")
         
@@ -153,6 +164,7 @@ class ParallelTrainer:
             if res and res['status'] == 'success':
                 results.append(res)
             else:
-                print(f"Worker {rank} failed: {res.get('error', 'Unknown error')}")
+                err = res.get('error', 'Unknown error') if res else 'No result returned'
+                print(f"Worker {rank} failed: {err}")
                 
         return results

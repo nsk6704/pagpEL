@@ -12,9 +12,18 @@ except ImportError:
     dml_available = False
 
 def main():
+    # Load Config for Defaults
+    try:
+        import json
+        with open('config.json', 'r') as f:
+            conf = json.load(f)
+            train_defaults = conf.get('training', {})
+    except:
+        train_defaults = {}
+
     parser = argparse.ArgumentParser(description="Parallel & GPU-Accelerated Anomaly Detection")
-    parser.add_argument('--epochs', type=int, default=5, help='Number of training epochs')
-    parser.add_argument('--batch_size', type=int, default=32, help='Batch size')
+    parser.add_argument('--epochs', type=int, default=train_defaults.get('default_epochs', 5), help='Number of training epochs')
+    parser.add_argument('--batch_size', type=int, default=train_defaults.get('batch_size', 32), help='Batch size')
     parser.add_argument('--seq_len', type=int, default=64, help='Sequence length')
     parser.add_argument('--n_features', type=int, default=1, help='Number of features')
     parser.add_argument('--n_models', type=int, default=5, help='Number of models to train in parallel')

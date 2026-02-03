@@ -45,11 +45,22 @@ class GlobalState:
 
 state = GlobalState()
 
+# Load Defaults from Config
+def load_config():
+    try:
+        with open('config.json', 'r') as f:
+            return json.load(f)
+    except:
+        return {}
+
+default_conf = load_config()
+training_defaults = default_conf.get('training', {})
+
 # Models
 class TrainConfig(BaseModel):
     dataset: str = "nyc_taxi" 
-    epochs: int = 5
-    batch_size: int = 32
+    epochs: int = training_defaults.get('default_epochs', 5)
+    batch_size: int = training_defaults.get('batch_size', 32)
     seq_len: int = 64
     n_models: int = 5
     device: str = "cpu" # cpu, cuda, or dml
@@ -86,6 +97,7 @@ def run_training_pipeline(config: TrainConfig):
         state.progress = 10
         
         # 1. Prepare Data
+        # Ensure we pass all required args to get_dataloaders
         get_dataloaders(dataset_name=config.dataset, batch_size=config.batch_size, seq_len=config.seq_len)
         log("Data ready.")
         state.progress = 20
