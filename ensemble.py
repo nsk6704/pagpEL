@@ -28,13 +28,19 @@ class EnsemblePredictor:
         """
         Aggregates predictions from all models.
         """
+        # Resolve DML device if needed
+        target_device = device
+        if device == 'dml':
+            import torch_directml
+            target_device = torch_directml.device()
+            
         all_scores = []
         true_labels = None
         
-        print(f"Evaluating ensemble of {len(self.models)} models on {device}...")
+        print(f"Evaluating ensemble of {len(self.models)} models on {target_device}...")
         
         for i, model in enumerate(self.models):
-            scores, labels = evaluate_model(model, test_loader, device=device)
+            scores, labels = evaluate_model(model, test_loader, device=target_device)
             
             # Normalize scores to [0, 1] range for each model to ensure fair voting
             # Simple Min-Max scaling based on batch statistics

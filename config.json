@@ -1,0 +1,66 @@
+{
+    "system": {
+        "use_gpu": true,
+        "use_dml": true,
+        "num_workers_ratio": 0.75
+    },
+    "data": {
+        "synthetic": {
+            "n_samples": 5000,
+            "seq_len": 64,
+            "n_features": 1,
+            "anomaly_ratio": 0.1
+        },
+        "nyc_taxi": {
+            "url": "https://raw.githubusercontent.com/numenta/NAB/master/data/realKnownCause/nyc_taxi.csv",
+            "seq_len": 64,
+            "train_split": 0.8
+        }
+    },
+    "training": {
+        "default_epochs": 10,
+        "batch_size": 32,
+        "learning_rate": 0.001
+    },
+    "benchmarks": [
+        {
+            "device": "cpu",
+            "batch_sizes": [
+                128,
+                512,
+                1024
+            ],
+            "model_type": "heavy_cnn",
+            "epochs": 2,
+            "seq_len": 256,
+            "n_features": 1
+        },
+        {
+            "device": "cuda",
+            "batch_sizes": [
+                128,
+                512,
+                1024,
+                2048,
+                4096
+            ],
+            "model_type": "heavy_cnn",
+            "epochs": 2,
+            "seq_len": 256,
+            "n_features": 1,
+            "use_amp": true
+        },
+        {
+            "device": "dml",
+            "batch_sizes": [
+                128,
+                512,
+                1024
+            ],
+            "model_type": "heavy_cnn",
+            "epochs": 2,
+            "seq_len": 256,
+            "n_features": 1
+        }
+    ]
+}
