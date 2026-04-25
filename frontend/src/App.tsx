@@ -102,7 +102,6 @@ const MODEL_INFO: Record<string, { icon: any; color: string; bgColor: string; de
   }
 }
 
-// --- Components ---
 
 const BentoBox = ({ children, className, title, icon: Icon }: { children: React.ReactNode, className?: string, title?: string, icon?: any }) => (
   <div className={cn("bg-zinc-900/50 border border-zinc-800 rounded-2xl p-6 backdrop-blur-sm flex flex-col", className)}>
@@ -596,17 +595,21 @@ function App() {
                     </div>
                     <div className="space-y-1.5">
                       <label className="text-xs text-zinc-500 font-medium ml-1">Batch Size</label>
-                      <input
-                        type="number"
-                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none transition-all hover:border-zinc-700"
+                      <select
+                        className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none transition-all hover:border-zinc-700 appearance-none"
                         value={config.batch_size}
                         onChange={(e) => setConfig({ ...config, batch_size: parseInt(e.target.value) })}
                         disabled={status.active}
-                      />
+                      >
+                        <option value={32}>32</option>
+                        <option value={64}>64</option>
+                        <option value={128}>128</option>
+                        <option value={256}>256</option>
+                      </select>
                     </div>
                   </div>
 
-                  <div className="space-y-1.5">
+                  <div className="space-y-1.5 opacity-50 pointer-events-none">
                     <label className="text-xs text-zinc-500 font-medium ml-1">Number of Models</label>
                     <input
                       type="number"
@@ -615,7 +618,7 @@ function App() {
                       className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm focus:ring-1 focus:ring-blue-500 outline-none transition-all hover:border-zinc-700"
                       value={config.n_models}
                       onChange={(e) => setConfig({ ...config, n_models: parseInt(e.target.value) })}
-                      disabled={status.active}
+                      disabled={true}
                     />
                     <p className="text-[10px] text-zinc-600 ml-1">Models cycle through: LSTM → CNN → Dense → Transformer → GRU</p>
                   </div>
@@ -693,11 +696,12 @@ function App() {
                       value={results.metrics ? results.metrics.auc_roc.toFixed(4) : '--'}
                       colorClass="text-emerald-400"
                     />
+                    {/* PR-AUC Hidden for demo
                     <MetricCard
                       label="PR-AUC"
                       value={results.metrics ? results.metrics.pr_auc.toFixed(4) : '--'}
                       colorClass="text-blue-400"
-                    />
+                    /> */}
                     <MetricCard
                       label="Models"
                       value={config.n_models.toString()}
