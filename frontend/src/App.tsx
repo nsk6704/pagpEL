@@ -411,7 +411,7 @@ function App() {
                     <Layers size={24} />
                   </div>
                   <h1 className="text-3xl font-bold tracking-tight text-white">
-                    Anomaly Detection <span className="text-zinc-500">Framework</span>
+                    AnomalyDetect <span className="text-zinc-500">Framework</span>
                   </h1>
                 </div>
                 <p className="text-zinc-400 max-w-2xl text-lg">
